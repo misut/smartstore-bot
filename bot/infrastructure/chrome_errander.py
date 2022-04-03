@@ -6,9 +6,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from loguru import logger
 
-from bot.domain import SmartStoreErrander, Product, ProductOptions
+from bot.domain import SmartStoreErrander, Product, ProductOptions, ProductOption
 
 _LOGIN_SCRIPT = """
 (function execute(){{
@@ -60,12 +59,17 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         options_list = []
         for idx in range(5, 8):
             try:
-                options = self.driver.find_element(by=By.XPATH, value=f"//*[@id='content']/div/div[2]/div[2]/fieldset/div[{idx}]/div/a")
-                options_name = options.text
+                options_button = self.driver.find_element(by=By.XPATH, value=f"//*[@id='content']/div/div[2]/div[2]/fieldset/div[{idx}]/div/a")
+                options_name = options_button.text
 
-                options.click()
+                options_button.click()
                 options_listbox = self.driver.find_element(by=By.XPATH, value=f"//*[@id='content']/div/div[2]/div[2]/fieldset/div[{idx}]/div/ul")
-                options_list.append(ProductOptions(name=options_name, options=[("hello", 123)]))
+                options = []
+                for option in options_listbox.find_elements(by=By.TAG_NAME, value='li'):
+                    # TODO: 옵션 가격 가져오기
+                    options.append(ProductOption(name=option.text, price=0))
+
+                options_list.append(ProductOptions(name=options_name, options=options))
             except:
                 break
         

@@ -3,12 +3,21 @@ import pydantic
 from bot.domain.base import Entity, ValueObject
 
 
-ProductOption = tuple[str, int]
+class ProductOption(ValueObject):
+    name: str
+    price: int
+
+    @pydantic.validator("price")
+    def validate_price(cls, price: int) -> int:
+        if price < 0:
+            raise ValueError("Price must be positive")
+
+        return price
 
 
 class ProductOptions(ValueObject):
     name: str
-    options: list[ProductOption]
+    options: list[ProductOption] = []
 
 
 class Product(Entity):
@@ -19,7 +28,7 @@ class Product(Entity):
     options_list: list[ProductOptions] = None
 
     @pydantic.validator("price")
-    def validate_price(cls, price: int) -> bool:
+    def validate_price(cls, price: int) -> int:
         if price < 0:
             raise ValueError("Price must be positive")
         
