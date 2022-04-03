@@ -1,3 +1,3 @@
-from bot.domain.base import ValueObject, Entity, Event, AggregateRoot
+from bot.domain.base import AggregateRoot, Entity, Event, ValueObject
 from bot.domain.errander import SmartStoreErrander
-from bot.domain.product import Product, ProductOptions, ProductOption
+from bot.domain.product import Product, ProductOption, ProductOptions

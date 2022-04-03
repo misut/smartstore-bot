@@ -14,11 +14,11 @@ class SmartStoreErrander(abc.ABC, Service):
     @abc.abstractmethod
     def __exit__(self, *args) -> None:
         super().__exit__()
-    
+
     @abc.abstractmethod
     def fetch_product(self, store_name: str, product_id: int) -> Product:
         ...
-    
+
     @abc.abstractmethod
     def buy_product(self, product: Product) -> None:
         ...

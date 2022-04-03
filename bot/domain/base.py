@@ -24,7 +24,7 @@ class Entity(pydantic.BaseModel):
     class Config:
         orm_mode = True
 
- 
+
 class AggregateRoot(Entity):
     _event: Event | None
 

@@ -24,12 +24,12 @@ class Product(Entity):
     name: str
     price: int
     store_name: str
-    
+
     options_list: list[ProductOptions] = None
 
     @pydantic.validator("price")
     def validate_price(cls, price: int) -> int:
         if price < 0:
             raise ValueError("Price must be positive")
-        
+
         return price

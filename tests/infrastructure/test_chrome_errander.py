@@ -11,3 +11,4 @@ def test_fetch_product(errander: ChromeSmartStoreErrander) -> None:
     assert product.name == expected_name
     assert product.price == expected_price
     assert product.options_list[0].name == "사이즈"
+    assert product.options_list[0].options[0].name == "옵션없음 (품절)"
