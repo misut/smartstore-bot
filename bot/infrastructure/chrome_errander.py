@@ -53,6 +53,19 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
         self.driver.quit()
 
+    def check_product(self, store_name: str, product_id: int) -> bool:
+        product_url = _PRODUCT_URL.format(store_name=store_name, product_id=product_id)
+        self.driver.get(product_url)
+
+        buy_button = self.driver.find_element(
+            by=By.XPATH,
+            value="//*[@id='content']/div/div[2]/div[2]/fieldset/div[9]/div[1]/div/a",
+        )
+        if buy_button.text != "구매하기":
+            return False
+
+        return True
+
     def fetch_product(self, store_name: str, product_id: int) -> Product:
         product_url = _PRODUCT_URL.format(store_name=store_name, product_id=product_id)
         self.driver.get(product_url)
@@ -99,4 +112,17 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         )
 
     def buy_product(self, product: Product) -> None:
-        ...
+        if not self.check_product(product.store_name, product.id):
+            return
+
+        buy_button = self.driver.find_element(
+            by=By.XPATH,
+            value="//*[@id='content']/div/div[2]/div[2]/fieldset/div[9]/div[1]/div/a",
+        )
+        buy_button.click()
+
+        pay_button = self.driver.find_element(
+            by=By.XPATH,
+            value="//*[@id='orderForm']/div/div[7]/button",
+        )
+        pay_button.click()
