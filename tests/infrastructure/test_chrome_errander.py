@@ -1,3 +1,5 @@
+from loguru import logger
+
 from bot.infrastructure import ChromeSmartStoreErrander
 
 
@@ -17,4 +19,11 @@ def test_fetch_product(errander: ChromeSmartStoreErrander) -> None:
     assert product.name == expected_name
     assert product.price == expected_price
     assert product.options_list[0].name == "사이즈"
-    assert product.options_list[0].options[0].name == "옵션없음 (품절)"
+
+
+def test_fetch_product_with_option_price(errander: ChromeSmartStoreErrander) -> None:
+    with errander:
+        product = errander.fetch_product("cjang", 2166508785)
+    
+    logger.info(f"{product.options_list[1].options[0].name}: {product.options_list[1].options[0].price}")
+    assert len(product.options_list) == 6
