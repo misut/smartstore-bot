@@ -1,4 +1,6 @@
+import re
 from typing import Any
+from loguru import logger
 
 import selenium
 from selenium.webdriver.chrome.service import Service
@@ -74,34 +76,51 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             by=By.XPATH,
             value="//*[@id='content']/div/div[2]/div[2]/fieldset/div[1]/div[1]/h3",
         ).text
+
         price = int(
             self.driver.find_element(
                 by=By.XPATH,
                 value="//*[@id='content']/div/div[2]/div[2]/fieldset/div[1]/div[2]/div/strong/span[2]",
             ).text.replace(",", "")
         )
+
         options_list = []
-        for idx in range(5, 8):
-            try:
-                options_button = self.driver.find_element(
-                    by=By.XPATH,
-                    value=f"//*[@id='content']/div/div[2]/div[2]/fieldset/div[{idx}]/div/a",
-                )
+        try:
+            options_button = self.driver.find_elements(by=By.CLASS_NAME, value="bd_1fhc9")[0]
+            options_name = options_button.text
+
+            options_button.click()
+            options_listbox = options_button.get_property("parentNode").get_property("childNodes")[1]
+            option_buttons = options_listbox.get_property("childNodes")
+            options = []
+            for option_button in option_buttons:
+                options.append(ProductOption(name=option_button.text, price=0))
+            options_button.click()
+            
+            options_list.append(ProductOptions(name=options_name, options=options))
+        except:
+            logger.debug("No options found")
+
+        try:
+            options_buttons = self.driver.find_elements(by=By.CLASS_NAME, value="bd_2gVQ5")
+            options_buttons = options_buttons[:len(options_buttons)//2]
+            for options_button in options_buttons:
                 options_name = options_button.text
 
                 options_button.click()
-                options_listbox = self.driver.find_element(
-                    by=By.XPATH,
-                    value=f"//*[@id='content']/div/div[2]/div[2]/fieldset/div[{idx}]/div/ul",
-                )
+                options_listbox = options_button.get_property("parentNode").get_property("childNodes")[1]
+                option_buttons = options_listbox.get_property("childNodes")
                 options = []
-                for option in options_listbox.find_elements(by=By.TAG_NAME, value="li"):
-                    # TODO: 옵션 가격 가져오기
-                    options.append(ProductOption(name=option.text, price=0))
-
+                for option_button in option_buttons:
+                    regexp = re.search(r"\(\+[0-9,]+원\)", option_button.text)
+                    option_name = option_button.text[:regexp.start()].strip(" \t\n\r")
+                    option_price = int("".join(re.findall(r"[0-9]", regexp.group())))
+                    options.append(ProductOption(name=option_name, price=option_price))
+                options_button.click()
+                
                 options_list.append(ProductOptions(name=options_name, options=options))
-            except:
-                break
+        except:
+            logger.debug("No additional options found")
 
         return Product(
             id=product_id,
