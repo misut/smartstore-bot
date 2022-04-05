@@ -6,5 +6,5 @@ class Settings(pydantic.BaseSettings):
     PASSWORD: str
 
     class Config:
-        env_path = ".env"
+        env_file = ".env"
         env_prefix = "SMARTSTORE_"
