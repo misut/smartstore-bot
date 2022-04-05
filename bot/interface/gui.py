@@ -1,6 +1,6 @@
 import re
-import tkinter
 import time
+import tkinter
 from datetime import datetime, timedelta
 from tkinter import ttk
 
@@ -46,7 +46,9 @@ class GUI(tkinter.Tk):
         self.spinbox.set(0)
         self.spinbox.grid(column=0, row=3)
 
-        ttk.Button(master=self.frame, text="시작", command=self.start).grid(column=0, row=4)
+        ttk.Button(master=self.frame, text="시작", command=self.start).grid(
+            column=0, row=4
+        )
 
     def start(self) -> None:
         minutes = int(self.spinbox.get())

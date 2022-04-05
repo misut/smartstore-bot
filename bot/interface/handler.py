@@ -27,5 +27,5 @@ class Handler:
             command_type = func.__annotations__[params[0]]
             self.mapping[command_type] = func
             return func
-        
+
         return decorator

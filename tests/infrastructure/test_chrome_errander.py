@@ -25,6 +25,8 @@ def test_fetch_product(errander: ChromeSmartStoreErrander) -> None:
 def test_fetch_product_with_option_price(errander: ChromeSmartStoreErrander) -> None:
     with errander:
         product = errander.fetch_product(2166508785, "cjang")
-    
-    logger.info(f"{product.options_list[1].options[0].name}: {product.options_list[1].options[0].price}")
+
+    logger.info(
+        f"{product.options_list[1].options[0].name}: {product.options_list[1].options[0].price}"
+    )
     assert len(product.options_list) == 6

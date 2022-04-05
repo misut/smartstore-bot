@@ -1,15 +1,21 @@
 import re
 from typing import Any
-from loguru import logger
 
 import selenium
+from loguru import logger
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from bot.domain import Product, ProductOption, ProductOptions, SmartStoreErrander, StoreType
+from bot.domain import (
+    Product,
+    ProductOption,
+    ProductOptions,
+    SmartStoreErrander,
+    StoreType,
+)
 
 _LOGIN_SCRIPT = """
 (function execute(){{
@@ -33,7 +39,8 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
     def __enter__(self) -> SmartStoreErrander:
         self.driver = selenium.webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()), options=self.option,
+            service=Service(ChromeDriverManager().install()),
+            options=self.option,
         )
 
         login_script = _LOGIN_SCRIPT.format(
@@ -52,8 +59,15 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
         # self.driver.quit()
 
-    def check_product(self, product_id: int, store_name: str, store_type: StoreType = StoreType.SMARTSTORE) -> bool:
-        product_url = _PRODUCT_URL.format(product_id=product_id, store_name=store_name, store_type=store_type)
+    def check_product(
+        self,
+        product_id: int,
+        store_name: str,
+        store_type: StoreType = StoreType.SMARTSTORE,
+    ) -> bool:
+        product_url = _PRODUCT_URL.format(
+            product_id=product_id, store_name=store_name, store_type=store_type
+        )
         self.driver.get(product_url)
 
         try:
@@ -66,8 +80,15 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
         return True
 
-    def fetch_product(self, product_id: int, store_name: str, store_type: StoreType = StoreType.SMARTSTORE) -> Product:
-        product_url = _PRODUCT_URL.format(product_id=product_id, store_name=store_name, store_type=store_type)
+    def fetch_product(
+        self,
+        product_id: int,
+        store_name: str,
+        store_type: StoreType = StoreType.SMARTSTORE,
+    ) -> Product:
+        product_url = _PRODUCT_URL.format(
+            product_id=product_id, store_name=store_name, store_type=store_type
+        )
         self.driver.get(product_url)
 
         name = self.driver.find_element(
@@ -84,38 +105,46 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
         options_list = []
         try:
-            options_button = self.driver.find_elements(by=By.CLASS_NAME, value="bd_1fhc9")[0]
+            options_button = self.driver.find_elements(
+                by=By.CLASS_NAME, value="bd_1fhc9"
+            )[0]
             options_name = options_button.text
 
             options_button.click()
-            options_listbox = options_button.get_property("parentNode").get_property("childNodes")[1]
+            options_listbox = options_button.get_property("parentNode").get_property(
+                "childNodes"
+            )[1]
             option_buttons = options_listbox.get_property("childNodes")
             options = []
             for option_button in option_buttons:
                 options.append(ProductOption(name=option_button.text, price=0))
             options_button.click()
-            
+
             options_list.append(ProductOptions(name=options_name, options=options))
         except:
             logger.debug("No options found")
 
         try:
-            options_buttons = self.driver.find_elements(by=By.CLASS_NAME, value="bd_2gVQ5")
-            options_buttons = options_buttons[:len(options_buttons)//2]
+            options_buttons = self.driver.find_elements(
+                by=By.CLASS_NAME, value="bd_2gVQ5"
+            )
+            options_buttons = options_buttons[: len(options_buttons) // 2]
             for options_button in options_buttons:
                 options_name = options_button.text
 
                 options_button.click()
-                options_listbox = options_button.get_property("parentNode").get_property("childNodes")[1]
+                options_listbox = options_button.get_property(
+                    "parentNode"
+                ).get_property("childNodes")[1]
                 option_buttons = options_listbox.get_property("childNodes")
                 options = []
                 for option_button in option_buttons:
                     regexp = re.search(r"\(\+[0-9,]+원\)", option_button.text)
-                    option_name = option_button.text[:regexp.start()].strip(" \t\n\r")
+                    option_name = option_button.text[: regexp.start()].strip(" \t\n\r")
                     option_price = int("".join(re.findall(r"[0-9]", regexp.group())))
                     options.append(ProductOption(name=option_name, price=option_price))
                 options_button.click()
-                
+
                 options_list.append(ProductOptions(name=options_name, options=options))
         except:
             logger.debug("No additional options found")
@@ -140,5 +169,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         buy_button.click()
 
         WebDriverWait(self.driver, 10).until(
-            expected_conditions.presence_of_all_elements_located((By.CLASS_NAME, "btn_payment"))
+            expected_conditions.presence_of_all_elements_located(
+                (By.CLASS_NAME, "btn_payment")
+            )
         )[0].click()
