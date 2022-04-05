@@ -1,6 +1,13 @@
+import enum
+
 import pydantic
 
 from bot.domain.base import Entity, ValueObject
+
+
+class StoreType(str, enum.Enum):
+    BRAND: str = "brand"
+    SMARTSTORE: str = "smartstore"
 
 
 class ProductOption(ValueObject):
@@ -24,6 +31,7 @@ class Product(Entity):
     name: str
     price: int
     store_name: str
+    store_type: StoreType
 
     options_list: list[ProductOptions] = None
 

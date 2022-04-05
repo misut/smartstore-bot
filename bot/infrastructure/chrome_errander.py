@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-from bot.domain import Product, ProductOption, ProductOptions, SmartStoreErrander
+from bot.domain import Product, ProductOption, ProductOptions, SmartStoreErrander, StoreType
 
 _LOGIN_SCRIPT = """
 (function execute(){{
@@ -18,7 +18,7 @@ _LOGIN_SCRIPT = """
 }})();
 """
 _LOGIN_URL = "https://nid.naver.com/nidlogin.login?mode=form&url=https://www.naver.com"
-_PRODUCT_URL = "https://smartstore.naver.com/{store_name}/products/{product_id}"
+_PRODUCT_URL = "https://{store_type}.naver.com/{store_name}/products/{product_id}"
 
 
 class ChromeSmartStoreErrander(SmartStoreErrander):
@@ -26,17 +26,14 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
     password: str
 
     driver: selenium.webdriver.chrome.webdriver.WebDriver = None
+    option: selenium.webdriver.ChromeOptions = selenium.webdriver.ChromeOptions()
 
     class Config:
         arbitrary_types_allowed = True
 
     def __enter__(self) -> SmartStoreErrander:
-        _option = selenium.webdriver.ChromeOptions()
-        _option.add_argument("headless")
-        _option.add_argument("window-size=1920x1080")
-        _option.add_argument("disable-gpu")
         self.driver = selenium.webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()), options=_option
+            service=Service(ChromeDriverManager().install()), options=self.option,
         )
 
         login_script = _LOGIN_SCRIPT.format(
@@ -53,23 +50,24 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
     def __exit__(self, *args) -> None:
         super().__exit__(*args)
 
-        self.driver.quit()
+        # self.driver.quit()
 
-    def check_product(self, store_name: str, product_id: int) -> bool:
-        product_url = _PRODUCT_URL.format(store_name=store_name, product_id=product_id)
+    def check_product(self, product_id: int, store_name: str, store_type: StoreType = StoreType.SMARTSTORE) -> bool:
+        product_url = _PRODUCT_URL.format(product_id=product_id, store_name=store_name, store_type=store_type)
         self.driver.get(product_url)
 
-        buy_button = self.driver.find_element(
-            by=By.XPATH,
-            value="//*[@id='content']/div/div[2]/div[2]/fieldset/div[9]/div[1]/div/a",
-        )
-        if buy_button.text != "구매하기":
+        try:
+            self.driver.find_elements(
+                by=By.CLASS_NAME,
+                value="_2-uvQuRWK5",
+            )[0]
+        except IndexError:
             return False
 
         return True
 
-    def fetch_product(self, store_name: str, product_id: int) -> Product:
-        product_url = _PRODUCT_URL.format(store_name=store_name, product_id=product_id)
+    def fetch_product(self, product_id: int, store_name: str, store_type: StoreType = StoreType.SMARTSTORE) -> Product:
+        product_url = _PRODUCT_URL.format(product_id=product_id, store_name=store_name, store_type=store_type)
         self.driver.get(product_url)
 
         name = self.driver.find_element(
@@ -127,21 +125,20 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             name=name,
             price=price,
             store_name=store_name,
+            store_type=store_type,
             options_list=options_list,
         )
 
     def buy_product(self, product: Product) -> None:
-        if not self.check_product(product.store_name, product.id):
+        if not self.check_product(product.id, product.store_name, product.store_type):
             return
 
-        buy_button = self.driver.find_element(
-            by=By.XPATH,
-            value="//*[@id='content']/div/div[2]/div[2]/fieldset/div[9]/div[1]/div/a",
-        )
+        buy_button = self.driver.find_elements(
+            by=By.CLASS_NAME,
+            value="_2-uvQuRWK5",
+        )[0]
         buy_button.click()
 
-        pay_button = self.driver.find_element(
-            by=By.XPATH,
-            value="//*[@id='orderForm']/div/div[7]/button",
-        )
-        pay_button.click()
+        WebDriverWait(self.driver, 10).until(
+            expected_conditions.presence_of_all_elements_located((By.CLASS_NAME, "btn_payment"))
+        )[0].click()
