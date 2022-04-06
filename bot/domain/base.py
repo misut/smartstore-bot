@@ -15,6 +15,8 @@ class Event(ValueObject):
 
 
 class Entity(pydantic.BaseModel):
+    created_at: datetime = pydantic.Field(default_factory=datetime.now)
+    
     class Config:
         orm_mode = True
 
