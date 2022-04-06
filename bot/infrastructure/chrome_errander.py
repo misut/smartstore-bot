@@ -1,13 +1,10 @@
 import re
-from typing import Any
 
-import selenium
 from loguru import logger
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 
 from bot.domain import (
     Product,
@@ -28,21 +25,14 @@ _PRODUCT_URL = "https://{store_type}.naver.com/{store_name}/products/{product_id
 
 
 class ChromeSmartStoreErrander(SmartStoreErrander):
+    driver: webdriver.WebDriver
     username: str
     password: str
-
-    driver: selenium.webdriver.chrome.webdriver.WebDriver = None
-    option: selenium.webdriver.ChromeOptions = selenium.webdriver.ChromeOptions()
 
     class Config:
         arbitrary_types_allowed = True
 
     def __enter__(self) -> SmartStoreErrander:
-        self.driver = selenium.webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=self.option,
-        )
-
         login_script = _LOGIN_SCRIPT.format(
             username=self.username, password=self.password
         )
@@ -51,13 +41,12 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.ID, "log.login"))
         ).click()
+        logger.debug("Login success")
 
         return super().__enter__()
 
     def __exit__(self, *args) -> None:
         super().__exit__(*args)
-
-        # self.driver.quit()
 
     def check_product(
         self,
@@ -149,7 +138,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         except:
             logger.debug("No additional options found")
 
-        return Product(
+        product = Product(
             id=product_id,
             name=name,
             price=price,
@@ -157,6 +146,8 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             store_type=store_type,
             options_list=options_list,
         )
+        logger.debug(f"Product fetched successfully: ({product.name}: {product.price})")
+        return product
 
     def buy_product(self, product: Product) -> None:
         if not self.check_product(product.id, product.store_name, product.store_type):
