@@ -28,6 +28,7 @@ class ProductOptions(ValueObject):
 
 
 class Product(Entity):
+    id: int
     name: str
     price: int
     store_name: str
