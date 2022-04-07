@@ -7,6 +7,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 
 from bot.domain import (
+    Account,
     Product,
     ProductOption,
     ProductOptions,
@@ -16,7 +17,7 @@ from bot.domain import (
 
 _LOGIN_SCRIPT = """
 (function execute(){{
-    document.querySelector('#id').value = '{username}';
+    document.querySelector('#id').value = '{id}';
     document.querySelector('#pw').value = '{password}';
 }})();
 """
@@ -26,15 +27,13 @@ _PRODUCT_URL = "https://{store_type}.naver.com/{store_name}/products/{product_id
 
 class ChromeSmartStoreErrander(SmartStoreErrander):
     driver: webdriver.WebDriver
-    username: str
-    password: str
 
     class Config:
         arbitrary_types_allowed = True
 
-    def __enter__(self) -> SmartStoreErrander:
+    def __enter__(self, account: Account) -> SmartStoreErrander:
         login_script = _LOGIN_SCRIPT.format(
-            username=self.username, password=self.password
+            id=account.id, password=account.password
         )
         self.driver.get(_LOGIN_URL)
         self.driver.execute_script(login_script)
