@@ -7,10 +7,14 @@ from tkinter import ttk
 from loguru import logger
 
 from bot.domain import StoreType
+from bot.interface import frames
+from bot.interface.container import Container
 from bot.interface.frames import HomeFrame
 
 
 class GUI(tkinter.Tk):
+    container: Container
+
     current_frame: ttk.Frame
     main_frame: ttk.Frame
 
@@ -18,6 +22,11 @@ class GUI(tkinter.Tk):
     spinbox: ttk.Spinbox
 
     def __init__(self) -> None:
+        self.container = Container()
+        self.container.wire(packages=[frames])
+        database = self.container.database()
+        database.create_all()
+
         super().__init__()
         self.geometry("800x400+100+100")
         self.resizable(False, False)
