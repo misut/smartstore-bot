@@ -7,30 +7,25 @@ from tkinter import ttk
 from loguru import logger
 
 from bot.domain import StoreType
-from bot.interface.container import Container
-from bot.interface.settings import Settings
+from bot.interface.frames import HomeFrame
 
 
 class GUI(tkinter.Tk):
-    container: Container
-    settings: Settings
-    frame: ttk.Frame
+    current_frame: ttk.Frame
+    main_frame: ttk.Frame
 
     entry: ttk.Entry
     spinbox: ttk.Spinbox
 
-    def __init__(self, settings: Settings) -> None:
-        self.container = Container()
-        self.container.config.from_pydantic(settings)
-        self.settings = settings
-
+    def __init__(self) -> None:
         super().__init__()
         self.geometry("800x400+100+100")
         self.resizable(False, False)
-        self.columnconfigure(0, weight=1)
 
-        self.frame = ttk.Frame(self, padding=10)
-        self.intro()
+        self.main_frame = ttk.Frame(master=self, padding=10)
+        self.main_frame.pack()
+
+        self.current_frame = HomeFrame(master=self.main_frame)
 
     def intro(self) -> None:
         self.frame.destroy()
@@ -42,7 +37,7 @@ class GUI(tkinter.Tk):
         self.entry.grid(column=0, row=1)
 
         ttk.Label(master=self.frame, text="몇 분동안?(0은 한번만 시도)").grid(column=0, row=2)
-        self.spinbox = ttk.Spinbox(master=self.frame, from_=0, to=60)
+        self.spinbox = ttk.Spinbox(master=self.frame, from_=0, to=43200)
         self.spinbox.set(0)
         self.spinbox.grid(column=0, row=3)
 
