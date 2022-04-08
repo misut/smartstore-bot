@@ -8,7 +8,7 @@ class Container(containers.DeclarativeContainer):
 
     driver = providers.Singleton(ChromeWebDriver)
 
-    hidden_driver = providers.Singleton(ChromeWebDriver)
+    hidden_driver = providers.Singleton(ChromeWebDriver, hidden=True)
 
     accounts = providers.Singleton(SqlAccountRepository, database=database.provided)
 

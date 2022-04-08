@@ -10,8 +10,13 @@ class ChromeWebDriver:
     options: ChromeOptions
     service: service.Service
 
-    def __init__(self, options: ChromeOptions = ChromeOptions()) -> None:
-        self.options = options
+    def __init__(self, hidden: bool = False) -> None:
+        self.options = ChromeOptions()
+        if hidden:
+            self.options.add_argument("headless")
+            self.options.add_argument("window-size=1920x1080")
+            self.options.add_argument("disable-gpu")
+
         self.service = service.Service(ChromeDriverManager().install())
 
         self.driver = Chrome(

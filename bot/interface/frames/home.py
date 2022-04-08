@@ -1,6 +1,9 @@
 import re
+import time
 import tkinter
+from datetime import datetime, timedelta
 from tkinter import ttk, simpledialog, messagebox
+from turtle import width
 
 from dependency_injector import wiring
 from loguru import logger
@@ -63,9 +66,25 @@ def fetch_product(
     product_id: int,
     store_name: str,
     store_type: StoreType = StoreType.SMARTSTORE,
-    errander: SmartStoreErrander = wiring.Provide[Container.errander],
+    hidden_errander: SmartStoreErrander = wiring.Provide[Container.hidden_errander],
 ) -> Product:
-    return errander.fetch_product(product_id, store_name, store_type)
+    return hidden_errander.fetch_product(product_id, store_name, store_type)
+
+
+@wiring.inject
+def buy_product(
+    account: Account,
+    product: Product,
+    minutes: int = 0,
+    errander: SmartStoreErrander = wiring.Provide[Container.errander],
+    hidden_errander: SmartStoreErrander = wiring.Provide[Container.hidden_errander],
+) -> None:
+    started_at = datetime.now()
+    while datetime.now() - started_at >= timedelta(minutes=minutes) and not hidden_errander.check_product(product):
+        time.sleep(1)
+    
+    with errander(account):
+        errander.buy_product(product)
 
 
 class HomeFrame(ttk.Frame):
@@ -75,7 +94,10 @@ class HomeFrame(ttk.Frame):
     url_entry: ttk.Entry
     pname_str: tkinter.StringVar
     price_str: tkinter.StringVar
+    minutes_spinbox: ttk.Spinbox
+    progress: ttk.Progressbar
 
+    id: str = ""
     product: Product = None
 
     def __init__(self, master: ttk.Frame) -> None:
@@ -113,7 +135,18 @@ class HomeFrame(ttk.Frame):
         ttk.Label(master=master, text="상품 가격:").grid(column=0, row=6, sticky=tkinter.N+tkinter.W)
 
         self.price_str = tkinter.StringVar()
-        ttk.Entry(master=master, state="readonly", width=30, textvariable=self.price_str).grid(column=0, row=7, sticky=tkinter.N+tkinter.W)
+        ttk.Entry(master=master, state="readonly", width=30, textvariable=self.price_str).grid(column=0, row=7, pady=(0, 30), sticky=tkinter.N+tkinter.W)
+
+        ttk.Label(master=master, text="반복 시간(분):").grid(column=0, row=8, sticky=tkinter.N+tkinter.W)
+
+        self.minutes_spinbox = ttk.Spinbox(master=master, from_=0, to=43200)
+        self.minutes_spinbox.set(0)
+        self.minutes_spinbox.grid(column=0, row=9, pady=(0, 30), sticky=tkinter.N+tkinter.W)
+
+        ttk.Button(master=master, text="\n시작!\n", width=40, command=self.start).grid(column=1, columnspan=2, row=8, rowspan=2, pady=(0, 30), sticky=tkinter.N+tkinter.E)
+
+        self.progress = ttk.Progressbar(master=master, length=400)
+        self.progress.grid(column=0, columnspan=3, row=10, sticky=tkinter.N)
 
     def insert_account(self, id: str, password: str) -> None:
         account = Account(id=id, password=password)
@@ -125,6 +158,7 @@ class HomeFrame(ttk.Frame):
 
     def select_account(self, *args) -> None:
         if self.accounts_combobox.get() != "+ 계정 추가":
+            self.id = self.accounts_combobox.get()
             return
     
         self.accounts_combobox.set("계정을 선택해주세요")
@@ -139,6 +173,7 @@ class HomeFrame(ttk.Frame):
         
         self.insert_account(id, password)
         self.accounts_combobox.set(id)
+        self.id = self.accounts_combobox.get()
 
     def update_account(self, *args) -> None:
         if self.accounts_combobox.get() in ["계정을 선택해주세요", "+ 계정 추가"]:
@@ -176,3 +211,18 @@ class HomeFrame(ttk.Frame):
         self.price_str.set(str(product.price)+"원")
 
         logger.debug(f"Product({product.name}) added")
+
+    def start(self, *args) -> None:
+        if self.accounts_combobox.get() in ["계정을 선택해주세요", "+ 계정 추가"]:
+            messagebox.showerror("시작 오류", "계정을 먼저 선택하세요 ㅡㅡ")
+            return
+
+        if self.product is None:
+            messagebox.showerror("시작 오류", "먼저 상품을 불러와주세요!")
+            return
+        
+        minutes = int(self.minutes_spinbox.get())
+        self.progress.start(minutes*600)
+
+        account = get_account(self.id)
+        buy_product(account, self.product, minutes)

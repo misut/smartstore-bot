@@ -16,12 +16,7 @@ class SmartStoreErrander(abc.ABC, Service):
         super().__exit__()
 
     @abc.abstractmethod
-    def check_product(
-        self,
-        product_id: int,
-        store_name: str,
-        store_type: StoreType = StoreType.SMARTSTORE,
-    ) -> bool:
+    def check_product(self, product: Product) -> bool:
         ...
 
     @abc.abstractmethod

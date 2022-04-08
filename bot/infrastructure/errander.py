@@ -25,15 +25,34 @@ _LOGIN_URL = "https://nid.naver.com/nidlogin.login?mode=form&url=https://www.nav
 _PRODUCT_URL = "https://{store_type}.naver.com/{store_name}/products/{product_id}"
 
 
+class _ChromeSmartStoreErrander(SmartStoreErrander):
+    def check_product(self, product: Product) -> bool:
+        return super().check_product(product)
+    
+    def fetch_product(self, product_id: int, store_name: str, store_type: StoreType = ...) -> Product:
+        return super().fetch_product(product_id, store_name, store_type)
+    
+    def buy_product(self, product: Product) -> None:
+        return super().buy_product(product)
+
+
 class ChromeSmartStoreErrander(SmartStoreErrander):
     driver: webdriver.WebDriver
+    
+    account: Account = None
 
     class Config:
         arbitrary_types_allowed = True
 
-    def __enter__(self, account: Account) -> SmartStoreErrander:
+    def __call__(self, account: Account) -> SmartStoreErrander:
+        self.account = account
+        return self
+
+    def __enter__(self) -> SmartStoreErrander:
+        if self.account is None:
+            raise Exception("Should pass account as a parameter")
         login_script = _LOGIN_SCRIPT.format(
-            id=account.id, password=account.password
+            id=self.account.id, password=self.account.password
         )
         self.driver.get(_LOGIN_URL)
         self.driver.execute_script(login_script)
@@ -46,15 +65,11 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
     def __exit__(self, *args) -> None:
         super().__exit__(*args)
+        self.account = None
 
-    def check_product(
-        self,
-        product_id: int,
-        store_name: str,
-        store_type: StoreType = StoreType.SMARTSTORE,
-    ) -> bool:
+    def check_product(self, product: Product) -> bool:
         product_url = _PRODUCT_URL.format(
-            product_id=product_id, store_name=store_name, store_type=store_type
+            product_id=product.id, store_name=product.store_name, store_type=product.store_type
         )
         self.driver.get(product_url)
 
@@ -149,7 +164,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         return product
 
     def buy_product(self, product: Product) -> None:
-        if not self.check_product(product.id, product.store_name, product.store_type):
+        if not self.check_product(product):
             return
 
         buy_button = self.driver.find_elements(

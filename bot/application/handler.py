@@ -13,6 +13,7 @@ class Handler:
     def handle(self, command: Any) -> None:
         command_type = type(command)
         if command_type not in self.mapping:
+            # TODO: 예외 이름 정하기
             raise Exception(f"Not registered type of a command: {command.__name__}")
 
         func = self.mapping[command_type]
