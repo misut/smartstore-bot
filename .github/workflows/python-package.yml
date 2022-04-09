@@ -40,4 +40,4 @@ jobs:
     - name: Test with pytest
       run: |
         source $HOME/.poetry/env
-        poetry run unittest
+        poetry run poe unittest
