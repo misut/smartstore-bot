@@ -3,7 +3,6 @@ import time
 import tkinter
 from datetime import datetime, timedelta
 from tkinter import messagebox, simpledialog, ttk
-from turtle import width
 
 from dependency_injector import wiring
 from loguru import logger

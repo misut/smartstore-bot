@@ -18,7 +18,7 @@ coverage-report = "pytest --cov=bot --cov-report=xml"
 
 unittest = "pytest -vv -x tests"
 
-test = ["coverage", "typetest", "lint", "format-check"]
+test = ["format-check", "lint", "coverage"]
 
 [tool.black]
 target-version = ["py310"]
