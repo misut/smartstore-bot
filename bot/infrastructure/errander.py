@@ -168,6 +168,13 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         return product
 
     def buy_product(self, product: Product) -> None:
+        product_url = _PRODUCT_URL.format(
+            product_id=product.id,
+            store_name=product.store_name,
+            store_type=product.store_type,
+        )
+        self.driver.get(product_url)
+        
         try:
             buy_button = self.driver.find_elements(
                 by=By.CLASS_NAME,
