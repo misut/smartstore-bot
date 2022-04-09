@@ -65,6 +65,7 @@ def delete_account(
 ) -> None:
     with accounts as repo:
         repo.delete(id)
+        repo.commit()
 
 
 @wiring.inject
@@ -238,7 +239,12 @@ class HomeFrame(ttk.Frame):
             return
 
         if messagebox.askyesno("계정 삭제", "진짜 삭제할거야?"):
-            delete_account(self.accounts_combobox.get())
+            id = self.accounts_combobox.get()
+            delete_account(id)
+            account_list = list(self.accounts_combobox["values"])
+            account_list.remove(id)
+            self.accounts_combobox["values"] = tuple(account_list)
+            self.accounts_combobox.set("계정을 선택해주세요")
             messagebox.showinfo("계정 삭제", "계정이 성공적으로 삭제되었습니다.")
 
     def fetch_product(self, *args) -> None:
