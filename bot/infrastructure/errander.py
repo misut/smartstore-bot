@@ -1,4 +1,5 @@
 import re
+import time
 
 from loguru import logger
 from selenium.webdriver.chrome import webdriver
@@ -183,6 +184,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
                 value="_2-uvQuRWK5",
             )[0]
             buy_button.click()
+            buy_button.click()
         except:
             logger.debug("Product sold out...")
             return
@@ -205,3 +207,4 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         self.driver.execute_script("arguments[0].click();", pay_later)
 
         pay_button.click()
+        time.sleep(10)
