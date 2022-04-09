@@ -74,7 +74,8 @@ def fetch_product(
     store_type: StoreType = StoreType.SMARTSTORE,
     hidden_errander: SmartStoreErrander = wiring.Provide[Container.hidden_errander],
 ) -> Product:
-    return hidden_errander.fetch_product(product_id, store_name, store_type)
+    with hidden_errander:
+        return hidden_errander.fetch_product(product_id, store_name, store_type)
 
 
 @wiring.inject
@@ -87,13 +88,16 @@ def buy_product(
     hidden_errander: SmartStoreErrander = wiring.Provide[Container.hidden_errander],
 ) -> None:
     selected_errander = hidden_errander if hidden else errander
+    
     started_at = datetime.now()
-    while datetime.now() - started_at >= timedelta(
-        minutes=minutes
-    ) and not selected_errander.check_product(product):
-        time.sleep(1)
+    with selected_errander:
+        while datetime.now() - started_at >= timedelta(
+            minutes=minutes
+        ) and not selected_errander.check_product(product):
+            time.sleep(1)
 
-    with errander(account):
+    with errander:
+        errander.login(account)
         errander.buy_product(product)
 
 

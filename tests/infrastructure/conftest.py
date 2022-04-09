@@ -4,34 +4,27 @@ import dotenv
 import pytest
 from selenium import webdriver
 
-from bot.infrastructure import (
-    ChromeSmartStoreErrander,
-    ChromeWebDriver,
-    SqlAccountRepository,
-    SqlAlchemyDatabase,
-)
+from bot.infrastructure import ChromeSmartStoreErrander, ChromeWebDriver, SqlAlchemyDatabase, SqlAccountRepository
 
 _DATABASE_URL = "sqlite:///:memory:?check_same_thread=False"
 
 
-@pytest.fixture(name="webdriver", scope="module")
+@pytest.fixture(name="web_driver", scope="module")
 def initialize_chrome_web_driver() -> ChromeWebDriver:
     options = webdriver.ChromeOptions()
     options.add_argument("headless")
     options.add_argument("window-size=1920x1080")
     options.add_argument("disable-gpu")
-    return ChromeWebDriver(options=options)
+    return ChromeWebDriver(hidden=True)
 
 
 @pytest.fixture(name="errander", scope="module")
-def initialize_chrome_errander(webdriver: ChromeWebDriver) -> ChromeSmartStoreErrander:
+def initialize_chrome_errander(web_driver: ChromeWebDriver) -> ChromeSmartStoreErrander:
     dotenv.load_dotenv()
 
-    return ChromeSmartStoreErrander(
-        driver=webdriver.driver,
-        username=os.getenv("SMARTSTORE_USERNAME"),
-        password=os.getenv("SMARTSTORE_PASSWORD"),
-    )
+    errander = ChromeSmartStoreErrander(web_driver=web_driver)
+    with errander:
+        yield errander
 
 
 @pytest.fixture(name="database", scope="module")

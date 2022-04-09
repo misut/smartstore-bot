@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import abc
 
+from bot.domain.account import Account
 from bot.domain.base import Service
 from bot.domain.product import Product, StoreType
 
@@ -14,6 +15,10 @@ class SmartStoreErrander(abc.ABC, Service):
     @abc.abstractmethod
     def __exit__(self, *args) -> None:
         super().__exit__()
+
+    @abc.abstractmethod
+    def login(self, account: Account) -> None:
+        ...
 
     @abc.abstractmethod
     def check_product(self, product: Product) -> bool:

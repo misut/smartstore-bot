@@ -19,8 +19,14 @@ class ChromeWebDriver:
 
         self.service = service.Service(ChromeDriverManager().install())
 
-        self.driver = Chrome(
-            options=self.options,
-            service=self.service,
-        )
+        
         logger.debug("Chrome driver installed")
+
+    def __enter__(self) -> webdriver.WebDriver:
+        self.driver = Chrome(
+            service=self.service,
+            options=self.options,
+        )
+
+    def __exit__(self, *args) -> None:
+        self.driver.quit()

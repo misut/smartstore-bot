@@ -14,6 +14,7 @@ from bot.domain import (
     SmartStoreErrander,
     StoreType,
 )
+from bot.infrastructure.web_driver import ChromeWebDriver
 
 _LOGIN_SCRIPT = """
 (function execute(){{
@@ -39,22 +40,28 @@ class _ChromeSmartStoreErrander(SmartStoreErrander):
 
 
 class ChromeSmartStoreErrander(SmartStoreErrander):
-    driver: webdriver.WebDriver
+    web_driver: ChromeWebDriver
 
-    account: Account = None
+    logged_in: bool = False
 
     class Config:
         arbitrary_types_allowed = True
 
-    def __call__(self, account: Account) -> SmartStoreErrander:
-        self.account = account
-        return self
-
     def __enter__(self) -> SmartStoreErrander:
-        if self.account is None:
-            raise Exception("Should pass account as a parameter")
+        self.web_driver.__enter__()
+        return super().__enter__()
+
+    def __exit__(self, *args) -> None:
+        super().__exit__(*args)
+        self.web_driver.__exit__()
+
+    @property
+    def driver(self) -> webdriver.WebDriver:
+        return self.web_driver.driver
+
+    def login(self, account: Account) -> None:
         login_script = _LOGIN_SCRIPT.format(
-            id=self.account.id, password=self.account.password
+            id=account.id, password=account.password
         )
         self.driver.get(_LOGIN_URL)
         self.driver.execute_script(login_script)
@@ -62,12 +69,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             expected_conditions.presence_of_element_located((By.ID, "log.login"))
         ).click()
         logger.debug("Login success")
-
-        return super().__enter__()
-
-    def __exit__(self, *args) -> None:
-        super().__exit__(*args)
-        self.account = None
+        self.logged_in = True
 
     def check_product(self, product: Product) -> bool:
         product_url = _PRODUCT_URL.format(
@@ -174,7 +176,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             store_type=product.store_type,
         )
         self.driver.get(product_url)
-        
+
         try:
             buy_button = self.driver.find_elements(
                 by=By.CLASS_NAME,
