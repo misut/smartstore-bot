@@ -30,7 +30,7 @@ jobs:
         poetry install
     - name: Check format
       run: |
-        poetry run poe format
+        poetry run poe format-check
     - name: Lint with pylint
       run: |
         poetry run poe lint

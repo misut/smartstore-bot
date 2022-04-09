@@ -19,7 +19,6 @@ class ChromeWebDriver:
 
         self.service = service.Service(ChromeDriverManager().install())
 
-        
         logger.debug("Chrome driver installed")
 
     def __enter__(self) -> webdriver.WebDriver:

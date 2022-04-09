@@ -61,9 +61,7 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         return self.web_driver.driver
 
     def login(self, account: Account) -> None:
-        login_script = _LOGIN_SCRIPT.format(
-            id=account.id, password=account.password
-        )
+        login_script = _LOGIN_SCRIPT.format(id=account.id, password=account.password)
         self.driver.get(_LOGIN_URL)
         self.driver.execute_script(login_script)
         WebDriverWait(self.driver, 10).until(

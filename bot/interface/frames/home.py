@@ -88,7 +88,7 @@ def buy_product(
     hidden_errander: SmartStoreErrander = wiring.Provide[Container.hidden_errander],
 ) -> None:
     selected_errander = hidden_errander if hidden else errander
-    
+
     started_at = datetime.now()
     with selected_errander:
         while datetime.now() - started_at >= timedelta(

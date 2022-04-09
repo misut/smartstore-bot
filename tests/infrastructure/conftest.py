@@ -4,7 +4,12 @@ import dotenv
 import pytest
 from selenium import webdriver
 
-from bot.infrastructure import ChromeSmartStoreErrander, ChromeWebDriver, SqlAlchemyDatabase, SqlAccountRepository
+from bot.infrastructure import (
+    ChromeSmartStoreErrander,
+    ChromeWebDriver,
+    SqlAccountRepository,
+    SqlAlchemyDatabase,
+)
 
 _DATABASE_URL = "sqlite:///:memory:?check_same_thread=False"
 

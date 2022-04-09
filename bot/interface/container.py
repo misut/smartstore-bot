@@ -17,9 +17,7 @@ class Container(containers.DeclarativeContainer):
 
     accounts = providers.Singleton(SqlAccountRepository, database=database.provided)
 
-    errander = providers.Singleton(
-        ChromeSmartStoreErrander, web_driver=driver.provided
-    )
+    errander = providers.Singleton(ChromeSmartStoreErrander, web_driver=driver.provided)
 
     hidden_errander = providers.Singleton(
         ChromeSmartStoreErrander, web_driver=hidden_driver.provided
