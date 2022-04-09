@@ -164,15 +164,15 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
         return product
 
     def buy_product(self, product: Product) -> None:
-        if not self.check_product(product):
+        try:
+            buy_button = self.driver.find_elements(
+                by=By.CLASS_NAME,
+                value="_2-uvQuRWK5",
+            )[0]
+            buy_button.click()
+        except:
+            logger.debug("Product sold out...")
             return
-
-        buy_button = self.driver.find_elements(
-            by=By.CLASS_NAME,
-            value="_2-uvQuRWK5",
-        )[0]
-        buy_button.click()
-        buy_button.click()
 
         pay_button = WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_all_elements_located(

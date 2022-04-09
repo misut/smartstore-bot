@@ -77,10 +77,9 @@ def buy_product(
     product: Product,
     minutes: int = 0,
     errander: SmartStoreErrander = wiring.Provide[Container.errander],
-    hidden_errander: SmartStoreErrander = wiring.Provide[Container.hidden_errander],
 ) -> None:
     started_at = datetime.now()
-    while datetime.now() - started_at >= timedelta(minutes=minutes) and not hidden_errander.check_product(product):
+    while datetime.now() - started_at >= timedelta(minutes=minutes) and not errander.check_product(product):
         time.sleep(1)
     
     with errander(account):
