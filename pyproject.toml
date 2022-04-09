@@ -10,7 +10,7 @@ _black = "black ."
 _isort = "isort ."
 format = ["_black", "_isort"]
 
-_pylint = "pylint bot tests"
+_pylint = "pylint --rcfile=pylintrc bot tests"
 lint = ["_pylint"]
 
 coverage = "pytest --cov=bot"
@@ -34,7 +34,7 @@ testpaths = ["tests"]
 [tool.coverage.run]
 branch = true
 [tool.coverage.report]
-fail_under = 90
+fail_under = 50
 show_missing = true
 [tool.coverage.xml]
 output = "coverage-reports/coverage.xml"
