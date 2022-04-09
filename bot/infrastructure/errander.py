@@ -172,9 +172,19 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             value="_2-uvQuRWK5",
         )[0]
         buy_button.click()
+        buy_button.click()
 
-        WebDriverWait(self.driver, 10).until(
+        pay_button = WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_all_elements_located(
                 (By.CLASS_NAME, "btn_payment")
             )
-        )[0].click()
+        )[0]
+
+        pay_means = self.driver.find_elements(
+            by=By.NAME,
+            value="payMeansClass",
+        )
+        pay_later = next(pay_mean for pay_mean in pay_means if pay_mean.get_property("value") == "SKIP")
+        self.driver.execute_script("arguments[0].click();", pay_later)
+
+        pay_button.click()

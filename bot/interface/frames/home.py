@@ -95,7 +95,6 @@ class HomeFrame(ttk.Frame):
     pname_str: tkinter.StringVar
     price_str: tkinter.StringVar
     minutes_spinbox: ttk.Spinbox
-    progress: ttk.Progressbar
 
     id: str = ""
     product: Product = None
@@ -144,9 +143,6 @@ class HomeFrame(ttk.Frame):
         self.minutes_spinbox.grid(column=0, row=9, pady=(0, 30), sticky=tkinter.N+tkinter.W)
 
         ttk.Button(master=master, text="\n시작!\n", width=40, command=self.start).grid(column=1, columnspan=2, row=8, rowspan=2, pady=(0, 30), sticky=tkinter.N+tkinter.E)
-
-        self.progress = ttk.Progressbar(master=master, length=400)
-        self.progress.grid(column=0, columnspan=3, row=10, sticky=tkinter.N)
 
     def insert_account(self, id: str, password: str) -> None:
         account = Account(id=id, password=password)
@@ -222,7 +218,6 @@ class HomeFrame(ttk.Frame):
             return
         
         minutes = int(self.minutes_spinbox.get())
-        self.progress.start(minutes*600)
 
         account = get_account(self.id)
         buy_product(account, self.product, minutes)
