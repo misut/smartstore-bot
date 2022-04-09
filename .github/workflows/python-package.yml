@@ -31,10 +31,13 @@ jobs:
         poetry install
     - name: Check format
       run: |
+        source $HOME/.poetry/env
         poetry run poe format-check
     - name: Lint with pylint
       run: |
+        source $HOME/.poetry/env
         poetry run poe lint
     - name: Test with pytest
       run: |
+        source $HOME/.poetry/env
         poetry run unittest
