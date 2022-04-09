@@ -14,13 +14,13 @@ def test_insert_and_select(account_repo: AccountRepository) -> None:
         Account(
             id="test_select_id_3",
             password="1234567890-=",
-        )
+        ),
     ]
 
     with account_repo as repo:
         for account in accounts:
             repo.insert(account)
-    
+
         assert all(account in repo.select() for account in accounts)
 
 
@@ -48,7 +48,7 @@ def test_insert_and_update_and_get(account_repo: AccountRepository) -> None:
         repo.insert(account)
         repo.commit()
 
-    with account_repo as repo:    
+    with account_repo as repo:
         account.password = new_password
 
         assert repo.get(account.id).password == old_password

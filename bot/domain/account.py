@@ -29,7 +29,7 @@ class AccountRepository(abc.ABC, Service):
     @abc.abstractmethod
     def rollback(self) -> None:
         ...
-    
+
     @abc.abstractmethod
     def select(self) -> list[Account]:
         ...

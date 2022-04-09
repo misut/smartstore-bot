@@ -13,7 +13,7 @@ class SqlAlchemyDatabase:
     def __init__(self, url: str = _DATABASE_URL) -> None:
         self.engine = sqlalchemy.create_engine(url=url)
         self.session_factory = orm.sessionmaker(bind=self.engine)
-        
+
     def session(self) -> orm.Session:
         return self.session_factory()
 

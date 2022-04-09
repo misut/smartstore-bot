@@ -16,7 +16,7 @@ class Event(ValueObject):
 
 class Entity(pydantic.BaseModel):
     created_at: datetime = pydantic.Field(default_factory=datetime.now)
-    
+
     class Config:
         orm_mode = True
 
@@ -28,14 +28,14 @@ class AggregateRoot(Entity):
         if self._event:
             # TODO: 예외 이름 정하기
             raise Exception("Event has been already pushed")
-        
+
         self._event = event
 
     def pop_event(self) -> Event:
         if not self._event:
             # TODO: 예외 이름 정하기
             raise Exception("Event should be pushed before popping")
-        
+
         event, self._event = self._event, None
         return event
 

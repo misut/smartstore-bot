@@ -4,7 +4,12 @@ import dotenv
 import pytest
 from selenium import webdriver
 
-from bot.infrastructure import ChromeSmartStoreErrander, ChromeWebDriver, SqlAlchemyDatabase, SqlAccountRepository
+from bot.infrastructure import (
+    ChromeSmartStoreErrander,
+    ChromeWebDriver,
+    SqlAccountRepository,
+    SqlAlchemyDatabase,
+)
 
 _DATABASE_URL = "sqlite:///:memory:?check_same_thread=False"
 
@@ -27,6 +32,7 @@ def initialize_chrome_errander(webdriver: ChromeWebDriver) -> ChromeSmartStoreEr
         username=os.getenv("SMARTSTORE_USERNAME"),
         password=os.getenv("SMARTSTORE_PASSWORD"),
     )
+
 
 @pytest.fixture(name="database", scope="module")
 def initialize_sqlalchemy_database() -> SqlAlchemyDatabase:

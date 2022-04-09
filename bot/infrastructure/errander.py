@@ -28,17 +28,19 @@ _PRODUCT_URL = "https://{store_type}.naver.com/{store_name}/products/{product_id
 class _ChromeSmartStoreErrander(SmartStoreErrander):
     def check_product(self, product: Product) -> bool:
         return super().check_product(product)
-    
-    def fetch_product(self, product_id: int, store_name: str, store_type: StoreType = ...) -> Product:
+
+    def fetch_product(
+        self, product_id: int, store_name: str, store_type: StoreType = ...
+    ) -> Product:
         return super().fetch_product(product_id, store_name, store_type)
-    
+
     def buy_product(self, product: Product) -> None:
         return super().buy_product(product)
 
 
 class ChromeSmartStoreErrander(SmartStoreErrander):
     driver: webdriver.WebDriver
-    
+
     account: Account = None
 
     class Config:
@@ -69,7 +71,9 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
 
     def check_product(self, product: Product) -> bool:
         product_url = _PRODUCT_URL.format(
-            product_id=product.id, store_name=product.store_name, store_type=product.store_type
+            product_id=product.id,
+            store_name=product.store_name,
+            store_type=product.store_type,
         )
         self.driver.get(product_url)
 
@@ -184,7 +188,11 @@ class ChromeSmartStoreErrander(SmartStoreErrander):
             by=By.NAME,
             value="payMeansClass",
         )
-        pay_later = next(pay_mean for pay_mean in pay_means if pay_mean.get_property("value") == "SKIP")
+        pay_later = next(
+            pay_mean
+            for pay_mean in pay_means
+            if pay_mean.get_property("value") == "SKIP"
+        )
         self.driver.execute_script("arguments[0].click();", pay_later)
 
         pay_button.click()

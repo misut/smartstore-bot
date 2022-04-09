@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-from loguru import logger
 
 import sqlalchemy
+from loguru import logger
 from sqlalchemy import orm
 
 from bot.domain import Account, AccountRepository
@@ -17,8 +17,12 @@ class AccountOrm(OrmBase):
     id = sqlalchemy.Column(sqlalchemy.String(128), primary_key=True)
     password = sqlalchemy.Column(sqlalchemy.String(128), nullable=False)
 
-    created_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
-    updated_at = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.now, nullable=False)
+    created_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
+    updated_at = sqlalchemy.Column(
+        sqlalchemy.DateTime, default=datetime.now, nullable=False
+    )
 
     @classmethod
     def from_entity(cls, entity: Account) -> AccountOrm:
@@ -48,7 +52,7 @@ class SqlAccountRepository(AccountRepository):
 
     def commit(self) -> None:
         self.session.commit()
-    
+
     def rollback(self) -> None:
         self.session.rollback()
 
@@ -71,7 +75,7 @@ class SqlAccountRepository(AccountRepository):
         fetched = self.session.query(AccountOrm).filter_by(id=entity.id).one_or_none()
         if not fetched:
             return None
-        
+
         fetched.password = entity.password
         fetched.updated_at = entity.updated_at
         self.session.flush()

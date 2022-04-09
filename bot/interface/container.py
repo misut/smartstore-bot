@@ -1,6 +1,11 @@
 from dependency_injector import containers, providers
 
-from bot.infrastructure import ChromeSmartStoreErrander, ChromeWebDriver, SqlAccountRepository, SqlAlchemyDatabase
+from bot.infrastructure import (
+    ChromeSmartStoreErrander,
+    ChromeWebDriver,
+    SqlAccountRepository,
+    SqlAlchemyDatabase,
+)
 
 
 class Container(containers.DeclarativeContainer):
@@ -12,6 +17,10 @@ class Container(containers.DeclarativeContainer):
 
     accounts = providers.Singleton(SqlAccountRepository, database=database.provided)
 
-    errander = providers.Singleton(ChromeSmartStoreErrander, driver=driver.provided.driver)
+    errander = providers.Singleton(
+        ChromeSmartStoreErrander, driver=driver.provided.driver
+    )
 
-    hidden_errander = providers.Singleton(ChromeSmartStoreErrander, driver=hidden_driver.provided.driver)
+    hidden_errander = providers.Singleton(
+        ChromeSmartStoreErrander, driver=hidden_driver.provided.driver
+    )

@@ -1,6 +1,6 @@
 from loguru import logger
 from selenium.webdriver import Chrome, ChromeOptions
-from selenium.webdriver.chrome import webdriver, service
+from selenium.webdriver.chrome import service, webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
 
