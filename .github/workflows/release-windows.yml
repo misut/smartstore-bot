@@ -36,6 +36,6 @@ jobs:
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
-        name: smartstore-bot-${{ env:RELEASE_VERSION }}-windows
+        name: smartstore-bot-${{ env.RELEASE_VERSION }}-windows
         path: dist/main.exe
     
