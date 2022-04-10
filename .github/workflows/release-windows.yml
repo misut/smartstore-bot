@@ -1,0 +1,41 @@
+# This workflow will build a binary and upload it.
+
+name: Release windows
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+        source $HOME/.poetry/env
+        poetry install
+    - name: Build binary
+      run: |
+        source $HOME/.poetry/env
+        poetry run poe release
+    - name: Upload binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: smartstore-bot-${{ env.RELEASE_VERSION }}-windows
+        path: dist/main.exe
+    
