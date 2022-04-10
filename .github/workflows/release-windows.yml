@@ -39,7 +39,7 @@ jobs:
     - name: Set env
       run: |
         chcp 65001
-        echo ("RELEASE_VERSION=" + $env:GITHUB_REF.replace('refs/heads/', '')) >> $env:GITHUB_ENV
+        echo ("RELEASE_VERSION=" + $env:GITHUB_REF.replace('refs/tags/', '')) >> $env:GITHUB_ENV
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
