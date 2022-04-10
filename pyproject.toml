@@ -21,7 +21,7 @@ unittest = "pytest -vv -x tests"
 test = ["format-check", "lint", "coverage"]
 
 _pyinstaller = "pyinstaller -w -F main.py"
-release = ["test", "_pyinstaller"]
+release = ["_pyinstaller"]
 
 [tool.black]
 target-version = ["py310"]
