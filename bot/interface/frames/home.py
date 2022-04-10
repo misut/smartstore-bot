@@ -91,7 +91,7 @@ def buy_product(
 
     started_at = datetime.now()
     with selected_errander:
-        while datetime.now() - started_at >= timedelta(
+        while datetime.now() - started_at < timedelta(
             minutes=minutes
         ) and not selected_errander.check_product(product):
             time.sleep(1)
