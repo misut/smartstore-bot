@@ -30,7 +30,9 @@ jobs:
       run: |
         poetry run poe release
     - name: Set env
-        run: echo ("RELEASE_VERSION=" + $env:GITHUB_REF.replace('refs/heads/', '')) >> $env:GITHUB_ENV
+        run: |
+          chcp 65001
+          echo ("RELEASE_VERSION=" + $env:GITHUB_REF.replace('refs/heads/', '')) >> $env:GITHUB_ENV
     - name: Upload binary
       uses: actions/upload-artifact@v3
       with:
