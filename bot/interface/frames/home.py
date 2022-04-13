@@ -91,14 +91,14 @@ def buy_product(
 
     started_at = datetime.now()
     with selected_errander:
+        selected_errander.login(account)
+
         while datetime.now() - started_at < timedelta(
             minutes=minutes
         ) and not selected_errander.check_product(product):
             time.sleep(1)
 
-    with errander:
-        errander.login(account)
-        errander.buy_product(product)
+        selected_errander.buy_product(product)
 
 
 class HomeFrame(ttk.Frame):
